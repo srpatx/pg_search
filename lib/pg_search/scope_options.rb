@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "active_support/core_ext/module/delegation"
+require "activerecord/cte/core_ext"
 
 module PgSearch
   class ScopeOptions
@@ -17,6 +18,7 @@ module PgSearch
       rank_table_alias = scope.pg_search_rank_table_alias(include_counter: true)
 
       scope
+        .with({ rank_table_alias => subquery })
         .joins(rank_join(rank_table_alias))
         .order(Arel.sql("#{rank_table_alias}.rank DESC, #{order_within_rank}"))
         .extend(WithPgSearchRank)
@@ -142,7 +144,7 @@ module PgSearch
     end
 
     def rank_join(rank_table_alias)
-      "INNER JOIN (#{subquery.to_sql}) AS #{rank_table_alias} ON #{primary_key} = #{rank_table_alias}.pg_search_id"
+      "INNER JOIN #{rank_table_alias} ON #{primary_key} = #{rank_table_alias}.pg_search_id"
     end
 
     def include_table_aliasing_for_rank(scope)
