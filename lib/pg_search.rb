@@ -67,6 +67,12 @@ module PgSearch
         "to access the pg_search_highlight attribute on returned records"
     end
   end
+
+  class MissingColumns < StandardError
+    def message
+      "You must specify columns to search. None were given."
+    end
+  end
 end
 
 require "pg_search/railtie" if defined?(Rails::Railtie)

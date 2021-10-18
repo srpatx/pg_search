@@ -31,7 +31,7 @@ describe "an Active Record model which includes PgSearch" do
 
   describe ".pg_search_scope" do
     it "builds a chainable scope" do
-      ModelWithPgSearch.pg_search_scope "matching_query", against: []
+      ModelWithPgSearch.pg_search_scope "matching_query", against: :content
       scope = ModelWithPgSearch.where("1 = 1").matching_query("foo").where("1 = 1")
       expect(scope).to be_an ActiveRecord::Relation
     end

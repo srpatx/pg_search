@@ -10,9 +10,11 @@ module PgSearch
         %i[only sort_only]
       end
 
-      delegate :connection, :quoted_table_name, to: :@model
+      delegate :connection, :quoted_table_name, :arel_table, to: :@model
 
       def initialize(query, options, all_columns, model, normalizer)
+        raise MissingColumns if all_columns.none?
+
         @query = query
         @options = (options || {}).assert_valid_keys(self.class.valid_options)
         @all_columns = all_columns

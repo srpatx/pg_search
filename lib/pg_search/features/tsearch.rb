@@ -12,12 +12,16 @@ module PgSearch
 
       def conditions
         Arel::Nodes::Grouping.new(
-          Arel::Nodes::InfixOperation.new("@@", arel_wrap(tsdocument), arel_wrap(tsquery))
+          Arel::Nodes::InfixOperation.new(
+            "@@",
+            tsdocument,
+            arel_wrap(tsquery)
+          )
         )
       end
 
       def rank
-        arel_wrap(tsearch_rank)
+        Arel::Nodes::Grouping.new(tsearch_rank)
       end
 
       def highlight
@@ -145,14 +149,16 @@ module PgSearch
         if options[:tsvector_column]
           tsvector_columns = Array.wrap(options[:tsvector_column])
 
-          tsdocument_terms << tsvector_columns.map do |tsvector_column|
-            column_name = connection.quote_column_name(tsvector_column)
-
-            "#{quoted_table_name}.#{column_name}"
+          tsdocument_terms += tsvector_columns.map do |tsvector_column|
+            arel_table[tsvector_column]
           end
         end
 
-        tsdocument_terms.join(' || ')
+        Arel::Nodes::Grouping.new(
+          tsdocument_terms.inject do |memo, term|
+            Arel::Nodes::InfixOperation.new('||', memo, term)
+          end
+        )
       end
 
       # From http://www.postgresql.org/docs/8.3/static/textsearch-controls.html
@@ -170,10 +176,10 @@ module PgSearch
 
       def tsearch_rank
         Arel::Nodes::NamedFunction.new("ts_rank", [
-          arel_wrap(tsdocument),
+          tsdocument,
           arel_wrap(tsquery),
           normalization
-        ]).to_sql
+        ])
       end
 
       def dictionary
@@ -199,12 +205,12 @@ module PgSearch
         )
 
         if search_column.weight.nil?
-          tsvector.to_sql
+          tsvector
         else
           Arel::Nodes::NamedFunction.new(
             "setweight",
             [tsvector, Arel::Nodes.build_quoted(search_column.weight)]
-          ).to_sql
+          )
         end
       end
     end

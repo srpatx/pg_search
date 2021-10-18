@@ -33,6 +33,23 @@ describe PgSearch::Features::Trigram do
     end
   end
 
+  describe "#initialize" do
+    context "when no columns are specified" do
+      it 'raises PgSearch::MissingColumns' do
+        query = "query"
+        columns = []
+        options = {}
+        config = instance_double("PgSearch::Configuration", :config, ignore: [])
+        normalizer = PgSearch::Normalizer.new(config)
+
+        expect do
+          feature = described_class.new(query, options, columns, Model, normalizer)
+          feature.conditions
+        end.to raise_exception(PgSearch::MissingColumns)
+      end
+    end
+  end
+
   describe 'conditions' do
     it 'escapes the search document and query' do
       config.ignore = []

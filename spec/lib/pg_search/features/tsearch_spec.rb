@@ -4,6 +4,25 @@ require "spec_helper"
 require "active_support/deprecation"
 
 describe PgSearch::Features::TSearch do
+  describe "#initialize" do
+    with_model :Model
+
+    context "when no columns are specified" do
+      it 'raises PgSearch::MissingColumns' do
+        query = "query"
+        columns = []
+        options = {}
+        config = instance_double("PgSearch::Configuration", :config, ignore: [])
+        normalizer = PgSearch::Normalizer.new(config)
+
+        expect do
+          feature = described_class.new(query, options, columns, Model, normalizer)
+          feature.conditions
+        end.to raise_exception(PgSearch::MissingColumns)
+      end
+    end
+  end
+
   describe "#rank" do
     with_model :Model do
       table do |t|
