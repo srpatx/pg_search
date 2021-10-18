@@ -196,12 +196,15 @@ module PgSearch
         tsvector = Arel::Nodes::NamedFunction.new(
           "to_tsvector",
           [dictionary, Arel.sql(normalize(search_column.to_sql))]
-        ).to_sql
+        )
 
         if search_column.weight.nil?
-          tsvector
+          tsvector.to_sql
         else
-          "setweight(#{tsvector}, #{connection.quote(search_column.weight)})"
+          Arel::Nodes::NamedFunction.new(
+            "setweight",
+            [tsvector, Arel::Nodes.build_quoted(search_column.weight)]
+          ).to_sql
         end
       end
     end
