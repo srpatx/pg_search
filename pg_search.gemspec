@@ -21,6 +21,7 @@ Gem::Specification.new do |s| # rubocop:disable Metrics/BlockLength
   s.add_dependency 'activerecord', '>= 5.2'
   s.add_dependency 'activesupport', '>= 5.2'
 
+  s.add_development_dependency 'debug'
   s.add_development_dependency 'pry'
   s.add_development_dependency 'rake'
   s.add_development_dependency 'rspec'

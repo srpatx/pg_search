@@ -184,7 +184,7 @@ describe "an Active Record model which includes PgSearch" do
         end
       end
 
-      context "when surrouned by select() scopes" do
+      context "when surrounded by select() scopes" do
         it "honors the select" do
           included = ModelWithPgSearch.create!(content: 'foo', title: 'bar')
           excluded = ModelWithPgSearch.create!(content: 'bar', title: 'foo')
